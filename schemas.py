@@ -12,7 +12,7 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Literal, Dict, Any
 
 # Example schemas (replace with your own):
 
@@ -40,6 +40,41 @@ class Product(BaseModel):
 
 # Add your own schemas here:
 # --------------------------------------------------
+
+class Module(BaseModel):
+    """Study module uploaded by a student.
+    Collection name: "module"
+    """
+    title: str = Field(..., description="Module title or topic")
+    content: str = Field(..., description="Raw notes or text content provided by user")
+    author: Optional[str] = Field(None, description="Name of the creator (optional)")
+    game_type: Literal["cards", "quiz"] = Field("cards", description="Type of game to generate")
+
+class Card(BaseModel):
+    prompt: str
+    answer: str
+
+class Question(BaseModel):
+    question: str
+    options: List[str]
+    correct_index: int
+
+class Game(BaseModel):
+    """Generated game for a module.
+    Collection name: "game"
+    """
+    module_id: str
+    game_type: Literal["cards", "quiz"]
+    cards: Optional[List[Card]] = None
+    questions: Optional[List[Question]] = None
+
+class Score(BaseModel):
+    """Score entries for leaderboards.
+    Collection name: "score"
+    """
+    module_id: str
+    player_name: str
+    score: int = Field(..., ge=0)
 
 # Note: The Flames database viewer will automatically:
 # 1. Read these schemas from GET /schema endpoint
